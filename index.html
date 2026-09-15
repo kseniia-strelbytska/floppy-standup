@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Floppy Standup</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- Main game -->
+  <canvas id="game"></canvas>
+
+  <!-- Full-screen overlay for pause / warnings -->
+  <div id="overlay" class="overlay hidden">
+    <div id="overlay-title" class="overlay-title"></div>
+    <div id="overlay-sub" class="overlay-sub"></div>
+  </div>
+
+  <!-- Camera + skeleton panel (top-left, ~1/6 of the screen) -->
+  <div id="cam-panel">
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="skeleton"></canvas>
+    <div id="cam-status" class="cam-status">Starting camera…</div>
+    <div class="gauge" title="Hand lift (0 = neutral, bar full = flap)">
+      <div id="gauge-fill" class="gauge-fill"></div>
+      <div id="gauge-mark" class="gauge-mark"></div>
+    </div>
+  </div>
+
+  <div id="hint" class="hint">
+    Raise both hands above your shoulders to flap. Lower them to re-arm.<br />
+    <span class="hint-keys">Space = flap (keyboard fallback) · C = recalibrate</span>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

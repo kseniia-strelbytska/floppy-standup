@@ -1,0 +1,143 @@
+:root {
+  --sky: #4ec0ca;
+  --ink: #533e2d;
+  --cam-width: 16.6667vw; /* ~1/6 of the screen width */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  font-family: "Courier New", Courier, monospace;
+  color: #fff;
+  user-select: none;
+}
+
+#game {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ---- overlay (TOO MANY PEOPLE, etc.) ---- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 10;
+  pointer-events: none;
+  text-align: center;
+  padding: 24px;
+}
+.overlay.hidden { display: none; }
+.overlay-title {
+  font-size: clamp(32px, 7vw, 96px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-shadow: 0 0 0 var(--ink), 4px 4px 0 var(--ink), -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink);
+}
+.overlay-title.warn { color: #ff4d4d; }
+.overlay-sub {
+  margin-top: 16px;
+  font-size: clamp(14px, 2vw, 24px);
+  color: #eee;
+  text-shadow: 2px 2px 0 #000;
+}
+
+/* ---- camera panel ---- */
+#cam-panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: var(--cam-width);
+  min-width: 180px;
+  aspect-ratio: 4 / 3;
+  border: 3px solid var(--ink);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #111;
+  z-index: 20;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+#cam-panel video,
+#cam-panel canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* mirror so it feels like a mirror */
+}
+.cam-status {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 3px 6px;
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cam-status.bad { background: rgba(200, 30, 30, 0.75); }
+.cam-status.good { background: rgba(30, 140, 60, 0.7); }
+
+/* hand-lift gauge on the right edge of the camera panel */
+.gauge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  bottom: 24px;
+  width: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.gauge-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0%;
+  background: #f7d51d;
+  transition: height 40ms linear;
+}
+.gauge-fill.armed { background: #73bf2e; }
+.gauge-mark {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ff4d4d;
+  bottom: 0%;
+}
+
+/* ---- bottom hint ---- */
+.hint {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  z-index: 5;
+  pointer-events: none;
+}
+.hint-keys { opacity: 0.75; font-size: 11px; }
