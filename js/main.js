@@ -24,6 +24,7 @@ let autopilot = false;
 
 // ?nocam → skip the camera entirely and play with Space (handy for tuning physics).
 const NO_CAM = new URLSearchParams(location.search).has("nocam");
+const DEBUG = new URLSearchParams(location.search).has("debug");
 window.floppy = { game, tracker, detector, setAutopilot: (v) => { autopilot = v; } };
 
 let ready = false;          // model + camera up
@@ -38,7 +39,7 @@ window.addEventListener("resize", () => game.resize());
 window.addEventListener("keydown", (e) => {
   if (e.code === "Space") { e.preventDefault(); game.flap(); }
   if (e.key === "c" || e.key === "C") detector.recalibrate();
-  if (e.key === "a" || e.key === "A") autopilot = !autopilot;
+  if (e.key === "a" || e.key === "A" || e.key === "p" || e.key === "P") autopilot = !autopilot;
 });
 $("game").addEventListener("pointerdown", () => game.flap());
 
@@ -87,7 +88,7 @@ function loop(now) {
     // 1. Pose
     const newFrame = tracker.update(now);
     const stable = tracker.stableCount;
-    if (newFrame && headHold.update(stable === 1 ? tracker.smoothed : null, now)) {
+    if (newFrame && headHold.update(stable === 1 ? tracker.smoothed : null, now, tracker.aspect)) {
       autopilot = !autopilot;
     }
 
@@ -100,7 +101,7 @@ function loop(now) {
 
     // 2. Gesture (only while exactly one person is stably tracked)
     if (stable === 1) {
-      const { flap } = detector.update(tracker.smoothed, now);
+      const { flap } = detector.update(tracker.smoothed, now, tracker.aspect);
       if (!detector.calibrated) {
         pauseReason = ["HOLD STILL", "Calibrating… stand naturally with your hands down"];
       } else if (flap) {
@@ -115,8 +116,11 @@ function loop(now) {
     // camera panel status line
     const n = tracker.rawCount;
     const label = stable >= 2 ? `${n} people – paused` : stable === 1 ? "1 player" : "no player";
+    const dbg = DEBUG
+      ? ` · lift ${detector.lift?.toFixed(2) ?? "–"} · head ${headHold.debug} ${Math.round(headHold.progress * 100)}%${autopilot ? " · AUTO" : ""}`
+      : "";
     setCamStatus(
-      `${label} · ${tracker.fps} fps · ${detector.calibrated ? detector.state : "calibrating"}`,
+      `${label} · ${tracker.fps} fps · ${detector.calibrated ? detector.state : "calibrating"}${dbg}`,
       stable >= 2 ? "bad" : stable === 1 ? "good" : ""
     );
     updateGauge();

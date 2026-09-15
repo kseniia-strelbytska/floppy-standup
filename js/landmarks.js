@@ -1,6 +1,8 @@
 // MediaPipe Pose landmark indices (33-point model) that the app uses.
 export const LM = {
   NOSE: 0,
+  L_EYE: 2,       R_EYE: 5,
+  L_EAR: 7,       R_EAR: 8,
   L_SHOULDER: 11, R_SHOULDER: 12,
   L_ELBOW: 13,    R_ELBOW: 14,
   L_WRIST: 15,    R_WRIST: 16,

@@ -58,6 +58,7 @@ export class PoseTracker {
 
     // Smoothed landmarks for the single tracked player: array of {x,y,visibility}
     this.smoothed = null;
+    this.aspect = 4 / 3;           // frame width / height, for distance maths
     this.filters = null;           // [ [fx, fy] x 33 ]
     this.lastVideoTime = -1;
     this.fps = 0;
@@ -90,6 +91,7 @@ export class PoseTracker {
     await this.video.play();
     this.canvas.width = this.video.videoWidth;
     this.canvas.height = this.video.videoHeight;
+    this.aspect = this.video.videoWidth / this.video.videoHeight;
   }
 
   _ensureFilters() {

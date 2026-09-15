@@ -6,7 +6,9 @@ import { LM } from "./landmarks.js";
 
 const HOLD_MS = 500;        // how long both hands must stay on the head
 const DROPOUT_MS = 150;     // tolerate brief tracking blips during the hold
-const MAX_DIST = 0.45;      // wrist-to-nose distance, in torso units (touching ≈ 0.25–0.35)
+const MAX_DIST = 0.55;      // wrist-to-head distance, in torso units (touching ≈ 0.2–0.4)
+const MIN_VIS = 0.2;        // wrists get low visibility scores when they're up by the head
+const HEAD = [LM.NOSE, LM.L_EYE, LM.R_EYE, LM.L_EAR, LM.R_EAR];
 
 export class HeadHold {
   constructor() {
@@ -15,6 +17,7 @@ export class HeadHold {
     this._since = null;     // when the current hold started
     this._lastSeen = -Infinity;
     this._consumed = false; // toggle already fired for this hold
+    this.debug = "";        // last measured distances, for ?debug
   }
 
   /**
@@ -22,8 +25,8 @@ export class HeadHold {
    * @param {number} now
    * @returns {boolean} true exactly once per completed hold
    */
-  update(lm, now) {
-    const seen = lm ? this._handsOnHead(lm) : false;
+  update(lm, now, aspect = 4 / 3) {
+    const seen = lm ? this._handsOnHead(lm, aspect) : false;
     if (seen) this._lastSeen = now;
     this.active = seen;
 
@@ -43,21 +46,29 @@ export class HeadHold {
     return false;
   }
 
-  _handsOnHead(lm) {
-    const nose = lm[LM.NOSE];
+  _handsOnHead(lm, aspect) {
     const ls = lm[LM.L_SHOULDER], rs = lm[LM.R_SHOULDER];
     const lh = lm[LM.L_HIP], rh = lm[LM.R_HIP];
     const lw = lm[LM.L_WRIST], rw = lm[LM.R_WRIST];
-    if (!nose || !ls || !rs || !lw || !rw) return false;
-    if (nose.visibility < 0.5 || lw.visibility < 0.4 || rw.visibility < 0.4) return false;
+    if (!ls || !rs || !lw || !rw) return false;
+    if (lw.visibility < MIN_VIS || rw.visibility < MIN_VIS) { this.debug = "wrist not visible"; return false; }
 
+    // Landmarks are normalised to the frame, so x needs the aspect ratio
+    // applied before x and y distances can be compared.
+    const dist = (a, b) => Math.hypot((a.x - b.x) * aspect, a.y - b.y);
     const shoulderY = (ls.y + rs.y) / 2;
     let torso = lh && rh && lh.visibility > 0.4 && rh.visibility > 0.4
       ? Math.abs((lh.y + rh.y) / 2 - shoulderY)
-      : Math.hypot(ls.x - rs.x, ls.y - rs.y) / 0.6;
+      : dist(ls, rs) / 0.6;
     if (torso < 0.02) return false;
 
-    const d = (p) => Math.hypot(p.x - nose.x, p.y - nose.y) / torso;
-    return d(lw) < MAX_DIST && d(rw) < MAX_DIST;
+    // Distance from each wrist to the *nearest* visible head landmark, so
+    // hands on the sides or back of the head count as well as on top.
+    const head = HEAD.map((i) => lm[i]).filter((p) => p && p.visibility > 0.3);
+    if (head.length === 0) { this.debug = "head not visible"; return false; }
+    const toHead = (w) => Math.min(...head.map((h) => dist(w, h))) / torso;
+    const dl = toHead(lw), dr = toHead(rw);
+    this.debug = `L ${dl.toFixed(2)} R ${dr.toFixed(2)} (< ${MAX_DIST})`;
+    return dl < MAX_DIST && dr < MAX_DIST;
   }
 }

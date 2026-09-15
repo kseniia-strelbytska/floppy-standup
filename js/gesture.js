@@ -66,10 +66,10 @@ export class FlapDetector {
    * @param {number} now performance.now()
    * @returns {{flap:boolean}}
    */
-  update(lm, now) {
+  update(lm, now, aspect = 4 / 3) {
     if (!lm) return { flap: false };
 
-    const lift = this._computeLift(lm);
+    const lift = this._computeLift(lm, aspect);
     if (lift === null) return { flap: false };
     this.lift = lift;
 
@@ -91,7 +91,7 @@ export class FlapDetector {
     return { flap };
   }
 
-  _computeLift(lm) {
+  _computeLift(lm, aspect) {
     const ls = lm[LM.L_SHOULDER], rs = lm[LM.R_SHOULDER];
     const lh = lm[LM.L_HIP], rh = lm[LM.R_HIP];
     if (!ls || !rs || !lh || !rh) return null;
@@ -102,7 +102,7 @@ export class FlapDetector {
     let torso = Math.abs(hipY - shoulderY);
     const hipsVisible = lh.visibility > 0.4 && rh.visibility > 0.4;
     if (!hipsVisible || torso < 0.04) {
-      torso = Math.hypot(ls.x - rs.x, ls.y - rs.y) / 0.6;
+      torso = Math.hypot((ls.x - rs.x) * aspect, ls.y - rs.y) / 0.6;
     }
     if (torso < 0.02) return null;
 
