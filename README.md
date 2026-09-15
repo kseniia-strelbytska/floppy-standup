@@ -142,4 +142,4 @@ model from Google's model storage at runtime.
 
 Original Flappy Bird by Dong Nguyen (.GEARS). This is a fan re-creation drawn
 from scratch with the original colour palette — no assets from the game are used.
-The person in the screenshot's camera panel is MediaPipe's sample image.
+The person in the screenshot's camera panel is MediaPipe's(Google) sample image.
