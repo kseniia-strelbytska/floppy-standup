@@ -15,6 +15,7 @@ const overlaySub = $("overlay-sub");
 const camStatus = $("cam-status");
 const gaugeFill = $("gauge-fill");
 const gaugeMark = $("gauge-mark");
+const autoMark = $("auto-mark");
 
 const game = new FlappyGame($("game"));
 const tracker = new PoseTracker(video, skeleton);
@@ -67,7 +68,7 @@ function updateGauge() {
   const hi = detector.rise + 0.35;
   const norm = (v) => Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
   gaugeFill.style.height = `${norm(detector.lift) * 100}%`;
-  gaugeFill.className = "gauge-fill" + (detector.state === "ARMED" ? " armed" : "") + (autopilot ? " auto" : "");
+  gaugeFill.className = "gauge-fill" + (detector.state === "ARMED" ? " armed" : "");
   gaugeMark.style.bottom = `${norm(detector.rise) * 100}%`;
 }
 
@@ -104,7 +105,9 @@ function loop(now) {
       const { flap } = detector.update(tracker.smoothed, now, tracker.aspect);
       if (!detector.calibrated) {
         pauseReason = ["HOLD STILL", "Calibrating… stand naturally with your hands down"];
-      } else if (flap) {
+      } else if (flap && !autopilot) {
+        // On autopilot the detector still runs (so the gauge keeps moving and
+        // the hold-to-toggle still works) but arm flaps control nothing.
         game.flap(now);
       }
     } else if (stable >= 2) {
@@ -129,6 +132,7 @@ function loop(now) {
   // 3. Game
   game.paused = pauseReason !== null;
   if (pauseReason) showOverlay(...pauseReason); else hideOverlay();
+  autoMark.classList.toggle("hidden", !autopilot);
   if (autopilot) autopilotStep(game, now);
   game.update(dt, now);
   game.draw();

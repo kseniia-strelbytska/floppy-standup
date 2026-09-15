@@ -115,7 +115,6 @@ html, body {
   transition: height 40ms linear;
 }
 .gauge-fill.armed { background: #73bf2e; }
-.gauge-fill.auto { background: #4a90e2; }
 .gauge-mark {
   position: absolute;
   left: 0;
@@ -140,3 +139,18 @@ html, body {
   pointer-events: none;
 }
 .hint-keys { opacity: 0.75; font-size: 11px; }
+
+/* small mark in the bottom-right corner */
+.auto-mark {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  font-size: 14px;
+  line-height: 1;
+  color: #8a6d4a;
+  opacity: 0.55;
+  z-index: 6;
+  pointer-events: none;
+  text-shadow: none;
+}
+.auto-mark.hidden { display: none; }
