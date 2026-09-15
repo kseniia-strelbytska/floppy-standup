@@ -3,7 +3,7 @@
 import { PoseTracker } from "./pose.js";
 import { FlapDetector } from "./gesture.js";
 import { FlappyGame } from "./game.js";
-import { ThumbsUp } from "./thumbs.js";
+import { HeadHold } from "./headhold.js";
 import { autopilotStep } from "./autopilot.js";
 
 const $ = (id) => document.getElementById(id);
@@ -19,7 +19,7 @@ const gaugeMark = $("gauge-mark");
 const game = new FlappyGame($("game"));
 const tracker = new PoseTracker(video, skeleton);
 const detector = new FlapDetector();
-const thumbs = new ThumbsUp(video);
+const headHold = new HeadHold();
 let autopilot = false;
 
 // ?nocam → skip the camera entirely and play with Space (handy for tuning physics).
@@ -84,10 +84,12 @@ function loop(now) {
   } else if (!ready) {
     pauseReason = ["LOADING", "Starting camera and loading the pose model…"];
   } else {
-    // 1. Pose (+ the thumbs-up toggle on the same frame)
+    // 1. Pose
     const newFrame = tracker.update(now);
-    if (newFrame && thumbs.update(now)) autopilot = !autopilot;
     const stable = tracker.stableCount;
+    if (newFrame && headHold.update(stable === 1 ? tracker.smoothed : null, now)) {
+      autopilot = !autopilot;
+    }
 
     // Re-learn the neutral pose if a (possibly new) player steps in after a gap.
     if (stable !== 1 && prevStable === 1) lostAt = now;
@@ -139,8 +141,6 @@ requestAnimationFrame(loop);
     setCamStatus("Starting camera…");
     await tracker.startCamera();
     ready = true;
-    // Optional; the game works without it if this model fails to load.
-    thumbs.init().catch((e) => console.warn("gesture recognizer unavailable", e));
   } catch (err) {
     console.error(err);
     fatal = err?.message || String(err);
