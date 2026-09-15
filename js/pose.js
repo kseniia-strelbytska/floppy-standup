@@ -186,13 +186,13 @@ export class PoseTracker {
       const pts = isPlayer && this.smoothed ? this.smoothed : lm;
       this.drawing.drawConnectors(pts, PoseLandmarker.POSE_CONNECTIONS, {
         color,
-        lineWidth: 3,
+        lineWidth: 6, // the panel is small, so draw thick
       });
       this.drawing.drawLandmarks(pts, {
         color: "#fff",
         fillColor: color,
-        lineWidth: 1,
-        radius: 3,
+        lineWidth: 2,
+        radius: 5,
       });
     }
   }

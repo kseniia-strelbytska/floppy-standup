@@ -4,11 +4,11 @@
 
 // ---- tuning -------------------------------------------------------------
 const H = 512;                 // logical height; width follows the window
-const GRAVITY = 650;           // px/s²
-const FLAP_VY = -290;          // px/s upward impulse
-const MAX_FALL = 420;          // px/s terminal velocity
-const PIPE_SPEED = 95;         // px/s
-const PIPE_GAP = 165;          // px between top and bottom pipe
+const GRAVITY = 500;           // px/s² (gentle: body input is slower than a thumb)
+const FLAP_VY = -340;          // px/s upward impulse (~115 px of lift per flap)
+const MAX_FALL = 380;          // px/s terminal velocity
+const PIPE_SPEED = 90;         // px/s
+const PIPE_GAP = 180;          // px between top and bottom pipe
 const PIPE_SPACING = 240;      // px between consecutive pipes
 const PIPE_W = 52;
 const PIPE_CAP_H = 26;
@@ -16,6 +16,8 @@ const GROUND_H = 112;
 const BIRD_W = 34, BIRD_H = 24;
 const HIT_MARGIN = 4;          // shrink hitbox so near misses are forgiven
 const RESTART_DELAY_MS = 900;  // ignore flaps right after dying
+const FLAP_PEAK = (FLAP_VY * FLAP_VY) / (2 * GRAVITY); // px gained per flap
+export { FLAP_PEAK, PIPE_GAP, PIPE_W, BIRD_H, GROUND_H, H };
 
 // ---- palette (original Flappy Bird "day" theme) -------------------------
 const C = {

@@ -3,6 +3,8 @@
 import { PoseTracker } from "./pose.js";
 import { FlapDetector } from "./gesture.js";
 import { FlappyGame } from "./game.js";
+import { ThumbsUp } from "./thumbs.js";
+import { autopilotStep } from "./autopilot.js";
 
 const $ = (id) => document.getElementById(id);
 const video = $("video");
@@ -17,10 +19,12 @@ const gaugeMark = $("gauge-mark");
 const game = new FlappyGame($("game"));
 const tracker = new PoseTracker(video, skeleton);
 const detector = new FlapDetector();
+const thumbs = new ThumbsUp(video);
+let autopilot = false;
 
 // ?nocam → skip the camera entirely and play with Space (handy for tuning physics).
 const NO_CAM = new URLSearchParams(location.search).has("nocam");
-window.floppy = { game, tracker, detector }; // exposed for console tweaking
+window.floppy = { game, tracker, detector, setAutopilot: (v) => { autopilot = v; } };
 
 let ready = false;          // model + camera up
 let fatal = null;           // error message if we can't run at all
@@ -34,6 +38,7 @@ window.addEventListener("resize", () => game.resize());
 window.addEventListener("keydown", (e) => {
   if (e.code === "Space") { e.preventDefault(); game.flap(); }
   if (e.key === "c" || e.key === "C") detector.recalibrate();
+  if (e.key === "a" || e.key === "A") autopilot = !autopilot;
 });
 $("game").addEventListener("pointerdown", () => game.flap());
 
@@ -61,7 +66,7 @@ function updateGauge() {
   const hi = detector.rise + 0.35;
   const norm = (v) => Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
   gaugeFill.style.height = `${norm(detector.lift) * 100}%`;
-  gaugeFill.className = "gauge-fill" + (detector.state === "ARMED" ? " armed" : "");
+  gaugeFill.className = "gauge-fill" + (detector.state === "ARMED" ? " armed" : "") + (autopilot ? " auto" : "");
   gaugeMark.style.bottom = `${norm(detector.rise) * 100}%`;
 }
 
@@ -79,8 +84,9 @@ function loop(now) {
   } else if (!ready) {
     pauseReason = ["LOADING", "Starting camera and loading the pose model…"];
   } else {
-    // 1. Pose
-    tracker.update(now);
+    // 1. Pose (+ the thumbs-up toggle on the same frame)
+    const newFrame = tracker.update(now);
+    if (newFrame && thumbs.update(now)) autopilot = !autopilot;
     const stable = tracker.stableCount;
 
     // Re-learn the neutral pose if a (possibly new) player steps in after a gap.
@@ -117,6 +123,7 @@ function loop(now) {
   // 3. Game
   game.paused = pauseReason !== null;
   if (pauseReason) showOverlay(...pauseReason); else hideOverlay();
+  if (autopilot) autopilotStep(game, now);
   game.update(dt, now);
   game.draw();
 
@@ -132,6 +139,8 @@ requestAnimationFrame(loop);
     setCamStatus("Starting camera…");
     await tracker.startCamera();
     ready = true;
+    // Optional; the game works without it if this model fails to load.
+    thumbs.init().catch((e) => console.warn("gesture recognizer unavailable", e));
   } catch (err) {
     console.error(err);
     fatal = err?.message || String(err);

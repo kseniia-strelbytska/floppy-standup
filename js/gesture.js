@@ -24,10 +24,10 @@ import { LM } from "./landmarks.js";
 
 const CALIBRATION_MS = 1500;   // how long we watch the player's neutral pose
 const MIN_FLAP_GAP_MS = 180;   // hard cooldown between flaps
-const RISE_ABOVE_NEUTRAL = 0.8;  // hands must come up ~0.8 torso lengths from rest…
+const RISE_ABOVE_NEUTRAL = 0.6;  // hands must come up ~0.6 torso lengths from rest (≈ chest height)…
 const RISE_CAP = 0.15;           // …but never more than "slightly above shoulders"
-const RISE_FLOOR_ABOVE_NEUTRAL = 0.35; // and never less than this, so fidgeting can't flap
-const HYSTERESIS = 0.45;         // drop this far below RISE to re-arm
+const RISE_FLOOR_ABOVE_NEUTRAL = 0.3;  // and never less than this, so fidgeting can't flap
+const HYSTERESIS = 0.3;          // drop this far below RISE to re-arm (a small dip is enough)
 
 function avg(a, b) { return (a + b) / 2; }
 

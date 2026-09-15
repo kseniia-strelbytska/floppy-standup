@@ -117,6 +117,7 @@ html, body {
   transition: height 40ms linear;
 }
 .gauge-fill.armed { background: #73bf2e; }
+.gauge-fill.auto { background: #4a90e2; }
 .gauge-mark {
   position: absolute;
   left: 0;
