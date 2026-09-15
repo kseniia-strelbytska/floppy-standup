@@ -148,8 +148,7 @@ html, body {
   font-size: 30px;
   font-weight: 900;
   letter-spacing: 0.04em;
-  color: #fff;
-  text-shadow: 3px 3px 0 var(--ink), -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 2px 2px 0 var(--ink);
+  color: var(--ink);
   z-index: 6;
   pointer-events: none;
 }
