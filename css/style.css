@@ -140,17 +140,17 @@ html, body {
 }
 .hint-keys { opacity: 0.75; font-size: 11px; }
 
-/* small mark in the bottom-right corner */
-.auto-mark {
+/* game title in the bottom-right corner */
+.title-mark {
   position: absolute;
-  right: 10px;
-  bottom: 6px;
-  font-size: 14px;
-  line-height: 1;
-  color: #8a6d4a;
-  opacity: 0.55;
+  right: 18px;
+  bottom: 14px;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-shadow: 3px 3px 0 var(--ink), -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 2px 2px 0 var(--ink);
   z-index: 6;
   pointer-events: none;
-  text-shadow: none;
 }
-.auto-mark.hidden { display: none; }
+.title-mark .auto { color: #e86101; }

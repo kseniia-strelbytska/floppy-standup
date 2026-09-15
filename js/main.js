@@ -15,7 +15,7 @@ const overlaySub = $("overlay-sub");
 const camStatus = $("cam-status");
 const gaugeFill = $("gauge-fill");
 const gaugeMark = $("gauge-mark");
-const autoMark = $("auto-mark");
+const titleA = $("title-a");
 
 const game = new FlappyGame($("game"));
 const tracker = new PoseTracker(video, skeleton);
@@ -132,7 +132,7 @@ function loop(now) {
   // 3. Game
   game.paused = pauseReason !== null;
   if (pauseReason) showOverlay(...pauseReason); else hideOverlay();
-  autoMark.classList.toggle("hidden", !autopilot);
+  titleA.classList.toggle("auto", autopilot);
   if (autopilot) autopilotStep(game, now);
   game.update(dt, now);
   game.draw();
